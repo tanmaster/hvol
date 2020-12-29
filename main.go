@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"github.com/brutella/hc"
 	"github.com/brutella/hc/accessory"
+	"github.com/brutella/hc/characteristic"
 	"github.com/itchyny/volume-go"
+	"log"
+	"net"
 )
 
 func main() {
@@ -32,8 +34,19 @@ func main() {
 	}
 
 	// create an accessory
-	info := accessory.Info{Name: "Lamp"}
-	ac := accessory.NewSwitch(info)
+	info := accessory.Info{Name: "Mac Volume"}
+	ac := accessory.NewLightbulb(info)
+
+	brightness := characteristic.NewBrightness().Characteristic
+	ac.Lightbulb.AddCharacteristic(brightness)
+
+	brightness.OnValueUpdateFromConn(func(conn net.Conn, c *characteristic.Characteristic, newValue, oldValue interface{}) {
+		err = volume.SetVolume(newValue.(int))
+		if err != nil {
+			log.Fatalf("set volume failed: %+v", err)
+		}
+		fmt.Printf("set volume success\n")
+	})
 
 	// configure the ip transport
 	config := hc.Config{Pin: "00102003"}
@@ -42,7 +55,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	hc.OnTermination(func(){
+	hc.OnTermination(func() {
 		<-t.Stop()
 	})
 
