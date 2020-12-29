@@ -18,9 +18,9 @@ func main() {
 	ac := accessory.NewLightbulb(info)
 
 	brightness := characteristic.NewBrightness().Characteristic
-	brightness.UpdateValue(vol)
 	ac.Lightbulb.AddCharacteristic(brightness)
 	ac.Lightbulb.On.SetValue(true)
+	brightness.UpdateValue(vol)
 	brightness.OnValueUpdateFromConn(func(conn net.Conn, c *characteristic.Characteristic, newValue, oldValue interface{}) {
 		err = volume.SetVolume(newValue.(int))
 		if err != nil {
