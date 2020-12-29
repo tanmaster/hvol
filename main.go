@@ -14,13 +14,13 @@ func main() {
 	vol, err := volume.GetVolume()
 
 	// create an accessory
-	info := accessory.Info{Name: "PC Volume"}
+	info := accessory.Info{Name: "Mac Volume"}
 	ac := accessory.NewLightbulb(info)
 
 	brightness := characteristic.NewBrightness().Characteristic
-	ac.Lightbulb.AddCharacteristic(brightness)
 	brightness.UpdateValue(vol)
-
+	ac.Lightbulb.AddCharacteristic(brightness)
+	ac.Lightbulb.On.SetValue(true)
 	brightness.OnValueUpdateFromConn(func(conn net.Conn, c *characteristic.Characteristic, newValue, oldValue interface{}) {
 		err = volume.SetVolume(newValue.(int))
 		if err != nil {
